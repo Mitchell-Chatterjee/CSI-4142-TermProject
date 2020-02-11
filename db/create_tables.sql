@@ -1,45 +1,49 @@
-SET search_path = "public";
-
--- DROP TABLE special_event_dimension;
--- DROP TABLE time_dimension;
-
-create table public.special_event_dimension(
-    special_event_key int,
-    category varchar(20),
-    type varchar(20),
-    name varchar(20),
-    attendance int,
-    venue_area float,
-    attracts_tourists boolean,
-    alcohol_allowed boolean,
-    target_age_group varchar(20),
-    primary key (special_event_key)
-);
-
-create table public.time_dimension(
-    time_band_key int,
-    time_band_sort_order varchar(20),
-    band_range_name varchar(20),
-    band_am_pm varchar(2),
-    band_lower_value int,
-    band_upper_value int,
-    primary key (time_band_key)
-);
-
-
--- These are the tables the professor specifically placed in her conceptual design.
 SET search_path = "CSI4142";
+
+-- DROP TABLE "CSI4142".crime CASCADE;
+-- DROP TABLE "CSI4142".date CASCADE;
+-- DROP TABLE "CSI4142".event CASCADE;
+-- DROP TABLE "CSI4142".location CASCADE;
+-- DROP TABLE "CSI4142".crime_fact;
 
 -- The date dimension
 CREATE TABLE DATE
 (
-    Date_key INTEGER PRIMARY KEY,
-    Day_of_week INTEGER NOT NULL,
-    Month_of_year INTEGER NOT NULL,
-	Year_calendar INTEGER NOT NULL,
-	Weekend BOOLEAN NOT NULL,
-	Holiday BOOLEAN NOT NULL,
-	Holiday_name VARCHAR(30)
+    date_key integer PRIMARY KEY,
+    recorded_date date,
+    full_date_description date,
+    day_of_week integer,
+    day_number_in_epoch integer,
+    week_number_in_epoch integer,
+    month_number_in_epoch integer,
+    day_number_in_calendar_month integer,
+    day_number_in_calendar_year integer,
+    last_day_in_week_indicator boolean,
+    last_day_in_month_indicator boolean,
+    calendar_week_ending_date integer,
+    calendar_week_number_in_year integer,
+    calendar_month_number_in_year integer,
+    calendar_month_name character varying(40) COLLATE pg_catalog."default",
+    calendar_year_month character varying(7) COLLATE pg_catalog."default",
+    calendar_quarter integer,
+    calendar_year_quarter integer,
+    calendar_half_year integer,
+    calendar_year integer,
+    fiscal_week character varying(20) COLLATE pg_catalog."default",
+    fiscal_week_number_in_year integer,
+    fiscal_month integer,
+    fiscal_month_number_in_year integer,
+    fiscal_year_month integer,
+    fiscal_quarter integer,
+    fiscal_year_quarter integer,
+    fiscal_half_year integer,
+    fiscal_year integer,
+    holiday_indicator boolean,
+	holiday_name VARCHAR(40),
+    weekday_indicator boolean,
+    selling_season boolean,
+    major_event boolean,
+    sql_date_stamp date
 );
 
 -- The location dimension
@@ -50,20 +54,22 @@ CREATE TABLE LOCATION
 	Longitude DOUBLE PRECISION,
 	Latitude DOUBLE PRECISION,
 	Neighbourhood VARCHAR(30),
-	-- TODO: Add neighbourhood statistics here
 	City VARCHAR(30),
 	Crime_rate DOUBLE PRECISION
+	-- TODO: Add neighbourhood statistics here
 );
 
 -- The event dimension
 CREATE TABLE EVENT
 (
 	Event_key INTEGER PRIMARY KEY,
-	Event_name VARCHAR(30),
-	Event_type VARCHAR(30),
-	Event_location VARCHAR(30), 			-- This may be a reference to the location dimension, unsure
-	Event_location_size DOUBLE PRECISION 	-- Need to have a unit here to define size
-	-- TODO: Add any other attributes here
+	Event_name VARCHAR(20),
+	Event_type VARCHAR(20),
+	Event_location VARCHAR(20), 			-- This may be a reference to the location dimension, unsure
+	Event_attendance INTEGER,			
+	Venue_size DOUBLE PRECISION,			-- Need to have a unit here to define size	
+	Alcohol_allowed BOOLEAN,
+	Target_age_group INTEGER
 );
 
 -- The crime dimension
