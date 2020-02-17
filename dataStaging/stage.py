@@ -18,6 +18,5 @@ def exampleCall(row):
 
 # main
 dbConn = Database()
-dbConn.testConnection()
 del dbConn
 

@@ -1,6 +1,5 @@
 #!/usr/bin/python
 import psycopg2
-from config import config
 import os
 
 class Database:
@@ -8,7 +7,7 @@ class Database:
         self.connection = None
         try:
             # read connection parameters
-            params = db = {'user':os.environ.get('DBUSERNAME'), 'password':os.environ.get('DBPASSWORD'),
+            params = {'user':os.environ.get('DBUSERNAME'), 'password':os.environ.get('DBPASSWORD'),
                            'host': 'web0.site.uottawa.ca', 'port': '15432', 'database': 'group_2'}
             # connect to the PostgreSQL server
             print('Connecting to the PostgreSQL database...')
