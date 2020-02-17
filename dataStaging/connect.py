@@ -31,11 +31,10 @@ class Database:
             # display the PostgreSQL database server version
             db_version = self.cursor.fetchone()
             print(db_version)
-        
-            # close the communication with the PostgreSQL
-            self.cursor.close()
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
+        
+        os.system("PAUSE")
 
     # This method handles disconnecting from the database
     # Must be called if the connect method is called upon ending the program
