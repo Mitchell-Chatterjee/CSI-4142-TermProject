@@ -8,7 +8,8 @@ class Database:
         self.connection = None
         try:
             # read connection parameters
-            params = config()
+            params = db = {'user':os.environ.get('DBUSERNAME'), 'password':os.environ.get('DBPASSWORD'),
+                           'host': 'web0.site.uottawa.ca', 'port': '15432', 'database': 'group_2'}
             # connect to the PostgreSQL server
             print('Connecting to the PostgreSQL database...')
             self.connection = psycopg2.connect(**params)
@@ -52,8 +53,5 @@ if __name__ == '__main__':
     # this the main test method to quickly check if your connection is working
     # to use this class just remove the conn.testConnection() method
     conn = Database()
-    conn.testConnection()
     del conn
-
-    os.system("PAUSE")
     
