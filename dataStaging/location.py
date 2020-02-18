@@ -238,7 +238,7 @@ def createLocationCsv():
 def populateDatabase(city):
     if(city == "denver"):
         # Populating the location table with the Denver data.
-        conn = psycopg2.connect(user = "dalga082",password = "Sheyanthi.1997",host = "www.eecs.uottawa.ca",port = "15432",database = "group_2") 
+        conn = psycopg2.connect(user = "",password = "",host = "www.eecs.uottawa.ca",port = "15432",database = "group_2") 
         cursor = conn.cursor()
         cursor.execute('SET search_path="CSI4142"')
         with open('data/final/denverLocation.csv', 'r') as f:
@@ -249,7 +249,7 @@ def populateDatabase(city):
         print("DONE populating the Location table with the Denver data.")
     else:
         # Populating the location table with the Vancouver data.
-        conn = psycopg2.connect(user = "dalga082",password = "Sheyanthi.1997",host = "www.eecs.uottawa.ca",port = "15432",database = "group_2") 
+        conn = psycopg2.connect(user = "",password = "",host = "www.eecs.uottawa.ca",port = "15432",database = "group_2") 
         cursor = conn.cursor()
         cursor.execute('SET search_path="CSI4142"')
         with open('data/final/vancouverLocation.csv', 'r') as f:
