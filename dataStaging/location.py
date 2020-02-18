@@ -55,12 +55,12 @@ def locationCrimerate(row, city):
         denverNumberOfCrime = 1
         denverPopulation = 1
 
-        denverCrime = csv.reader(open('data/denverCrimeRate2018.csv', "rt",encoding="utf8"), delimiter=",")
+        denverCrime = csv.reader(open('../data/denverCrimeRate2018.csv', "rt",encoding="utf8"), delimiter=",")
         for x in denverCrime:
             if x[0] == row['NEIGHBORHOOD_ID']:
                 denverNumberOfCrime=x[14]
 
-        denverInfo = csv.reader(open('data/denverInfo.csv', "rt",encoding="utf8"), delimiter=",")
+        denverInfo = csv.reader(open('../data/denverInfo.csv', "rt",encoding="utf8"), delimiter=",")
         for x in denverInfo:
             if x[0] == row['NEIGHBORHOOD_ID']:
                 denverPopulation = x[1]
@@ -70,12 +70,12 @@ def locationCrimerate(row, city):
         vancouverNumberOfCrime = 1
         vancouverPopulation = 1
 
-        vancouverCrime = csv.reader(open('data/vancouverCrimeRate2018.csv', "rt",encoding="utf8"), delimiter=",")
+        vancouverCrime = csv.reader(open('../data/vancouverCrimeRate2018.csv', "rt",encoding="utf8"), delimiter=",")
         for x in vancouverCrime:
             if x[0] == row['NEIGHBOURHOOD']:
                 vancouverNumberOfCrime=x[11]
 
-        vancouverInfo = csv.reader(open('data/vancouverInfo.csv', "rt",encoding="utf8"), delimiter=",")
+        vancouverInfo = csv.reader(open('../data/vancouverInfo.csv', "rt",encoding="utf8"), delimiter=",")
 
         for x in vancouverInfo:
             if x[0] == row['NEIGHBOURHOOD']:
@@ -88,7 +88,7 @@ def locationNumberOfCrimes(row, city):
     if city == "denver":
         denverNumberOfCrime = 1
 
-        denverCrime = csv.reader(open('data/denverCrimeRate2018.csv', "rt",encoding="utf8"), delimiter=",")
+        denverCrime = csv.reader(open('../data/denverCrimeRate2018.csv', "rt",encoding="utf8"), delimiter=",")
         for x in denverCrime:
             if x[0] == row['NEIGHBORHOOD_ID']:
                 denverNumberOfCrime=x[14]
@@ -97,7 +97,7 @@ def locationNumberOfCrimes(row, city):
     else:
         vancouverNumberOfCrime = 1
 
-        vancouverCrime = csv.reader(open('data/vancouverCrimeRate2018.csv', "rt",encoding="utf8"), delimiter=",")
+        vancouverCrime = csv.reader(open('../data/vancouverCrimeRate2018.csv', "rt",encoding="utf8"), delimiter=",")
         for x in vancouverCrime:
             if x[0] == row['NEIGHBOURHOOD']:
                 vancouverNumberOfCrime=x[11]
@@ -109,7 +109,7 @@ def locationAvgHouseholdIncome(row, city):
     if city == "denver":
         denverHouseholdIncome = 1
 
-        denverInfo = csv.reader(open('data/denverInfo.csv', "rt",encoding="utf8"), delimiter=",")
+        denverInfo = csv.reader(open('../data/denverInfo.csv', "rt",encoding="utf8"), delimiter=",")
         for x in denverInfo:
             if x[0] == row['NEIGHBORHOOD_ID']:
                 denverHouseholdIncome=x[4]
@@ -118,7 +118,7 @@ def locationAvgHouseholdIncome(row, city):
     else:
         vancouverHouseholdIncome = 1
 
-        vancouverInfo = csv.reader(open('data/vancouverInfo.csv', "rt",encoding="utf8"), delimiter=",")
+        vancouverInfo = csv.reader(open('../data/vancouverInfo.csv', "rt",encoding="utf8"), delimiter=",")
         for x in vancouverInfo:
             if x[0] == row['NEIGHBOURHOOD']:
                 vancouverHouseholdIncome=x[7]
@@ -130,7 +130,7 @@ def locationAvgPropValue(row, city):
     if city == "denver":
         denverAvgPropValue = 1
 
-        denverInfo = csv.reader(open('data/denverInfo.csv', "rt",encoding="utf8"), delimiter=",")
+        denverInfo = csv.reader(open('../data/denverInfo.csv', "rt",encoding="utf8"), delimiter=",")
         for x in denverInfo:
             if x[0] == row['NEIGHBORHOOD_ID']:
                 denverAvgPropValue=x[3]
@@ -139,7 +139,7 @@ def locationAvgPropValue(row, city):
     else:
         vancouverAvgPropValue = 1
 
-        vancouverInfo = csv.reader(open('data/vancouverInfo.csv', "rt",encoding="utf8"), delimiter=",")
+        vancouverInfo = csv.reader(open('../data/vancouverInfo.csv', "rt",encoding="utf8"), delimiter=",")
         for x in vancouverInfo:
             if x[0] == row['NEIGHBOURHOOD']:
                 vancouverAvgPropValue=x[6]
@@ -151,7 +151,7 @@ def locationNumOfPrecincts(row, city):
     if city == "denver":
         denverNumPrecincts = 0
 
-        denverInfo = csv.reader(open('data/denverInfo.csv', "rt",encoding="utf8"), delimiter=",")
+        denverInfo = csv.reader(open('../data/denverInfo.csv', "rt",encoding="utf8"), delimiter=",")
         for x in denverInfo:
             if x[0] == row['NEIGHBORHOOD_ID']:
                 denverNumPrecincts=x[5]
@@ -160,7 +160,7 @@ def locationNumOfPrecincts(row, city):
     else:
         vancouverNumPrecincts = 0
 
-        vancouverInfo = csv.reader(open('data/vancouverInfo.csv', "rt",encoding="utf8"), delimiter=",")
+        vancouverInfo = csv.reader(open('../data/vancouverInfo.csv', "rt",encoding="utf8"), delimiter=",")
         for x in vancouverInfo:
             if x[0] == row['NEIGHBOURHOOD']:
                 vancouverNumPrecincts=x[8]
@@ -189,7 +189,7 @@ def createLocationCsv(city):
     # ------------------------------------------------Denver csv file populating-----------------------------------------------------------
     counter = 1
     if(city == "denver"):
-        denvor_dataset = pd.read_csv('data/denverCrime.csv')
+        denvor_dataset = pd.read_csv('../data/denverCrime.csv')
 
         locationRowsDenver = []
 
@@ -200,7 +200,7 @@ def createLocationCsv(city):
             locationRowsDenver.append(denverRow)
             counter = counter + 1
 
-        with open('data/final/denverLocation.csv','w+', newline= '') as f:
+        with open('../data/final/denverLocation.csv','w+', newline= '') as f:
             writer = csv.writer(f)
             writer.writerow(['Location_key','Location_name','GeoX','GeoY','Neighbourhood','City','Crime_rate','NumberOfCrimes','AvgHouseholdIncome','AvgPropValue','NumOfPrecincts'])
             for row in locationRowsDenver:
@@ -208,7 +208,7 @@ def createLocationCsv(city):
 
 # ------------------------------------------------Vancouver csv file populating-----------------------------------------------------------
     else:
-        vancouver_dataset = pd.read_csv('data/vancouverCrime.csv')
+        vancouver_dataset = pd.read_csv('../data/vancouverCrime.csv')
     
         locationRowsVancouver = []
         numberOfRowsVancouver=len(vancouver_dataset.axes[0])
@@ -218,7 +218,7 @@ def createLocationCsv(city):
             locationRowsVancouver.append(vancouverRow)
             counter = counter + 1
         
-        with open('data/final/vancouverLocation.csv','w+', newline= '') as f:
+        with open('../data/final/vancouverLocation.csv','w+', newline= '') as f:
             writer = csv.writer(f)
             writer.writerow(['Location_key','Location_name','GeoX','GeoY','Neighbourhood','City','Crime_rate','NumberOfCrimes','AvgHouseholdIncome','AvgPropValue','NumOfPrecincts'])
             for row in locationRowsVancouver:
@@ -228,9 +228,9 @@ def createLocationCsv(city):
 def locationPrimaryKeys():
     denver_count=0
     vancouver_count=0
-    with open('data/final/denverLocation.csv') as f:
+    with open('../data/final/denverLocation.csv') as f:
         denver_count = sum(1 for line in f)
-    with open('data/final/vancouverLocation.csv') as f:
+    with open('../data/final/vancouverLocation.csv') as f:
         vancouver_count = sum(1 for line in f)
     keys = []
     for x in range(denver_count+vancouver_count-2):
