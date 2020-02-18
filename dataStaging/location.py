@@ -1,4 +1,3 @@
-#%%
 import csv
 import psycopg2
 from database import Database
@@ -275,6 +274,4 @@ def locationPrimaryKeys():
     return keys
 
 if __name__ == '__main__':
-    # createLocationCsv()
-    # populateDatabase('denver')
-    # populateDatabase('vancouver')
+    locationPrimaryKeys()
