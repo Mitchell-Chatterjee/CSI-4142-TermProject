@@ -17,8 +17,6 @@ def exampleCall(row):
 # for index, row in vanData.iterrows():
 #     exampleCall(row)
 
-# Populating the location table with the Denver data.
-
 
 # main
 dbConn = Database()
