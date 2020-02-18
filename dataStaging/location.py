@@ -1,6 +1,5 @@
 import csv
 import psycopg2
-from database import Database
 import pandas as pd
 import os.path
 from os import path
@@ -186,78 +185,44 @@ def generateColumn(row,counter,city):
 
 # This function creates the csv files for both cities to populate the database.
 # Before calling this function make sure the denverLocation.csv and vancouverLocation.csv files are empty
-def createLocationCsv():
+def createLocationCsv(city):
     # ------------------------------------------------Denver csv file populating-----------------------------------------------------------
-    denvor_dataset = pd.read_csv('data/denverCrime.csv')
-
-    locationRowsDenver = []
     counter = 1
+    if(city == "denver"):
+        denvor_dataset = pd.read_csv('data/denverCrime.csv')
 
-    numberOfRowsDenver=len(denvor_dataset.axes[0])
+        locationRowsDenver = []
 
-    for x in range(numberOfRowsDenver):
-        denverRow = generateColumn(denvor_dataset.iloc[x],counter, "denver")
-        locationRowsDenver.append(denverRow)
-        counter = counter + 1
+        numberOfRowsDenver=len(denvor_dataset.axes[0])
 
-    if(path.exists("data/final/denverLocation.csv") != False):
-        with open('data/final/denverLocation.csv','w', newline= '') as f:
+        for x in range(numberOfRowsDenver):
+            denverRow = generateColumn(denvor_dataset.iloc[x],counter, "denver")
+            locationRowsDenver.append(denverRow)
+            counter = counter + 1
+
+        with open('data/final/denverLocation.csv','w+', newline= '') as f:
             writer = csv.writer(f)
             writer.writerow(['Location_key','Location_name','GeoX','GeoY','Neighbourhood','City','Crime_rate','NumberOfCrimes','AvgHouseholdIncome','AvgPropValue','NumOfPrecincts'])
             for row in locationRowsDenver:
                 writer.writerow(row)
-    else:
-        print("!! The denverLocation.csv file doesn't exist mate, call me back when you create it !!")
-        return
+
 # ------------------------------------------------Vancouver csv file populating-----------------------------------------------------------
-    vancouver_dataset = pd.read_csv('data/vancouverCrime.csv')
+    else:
+        vancouver_dataset = pd.read_csv('data/vancouverCrime.csv')
     
-    locationRowsVancouver = []
-    numberOfRowsVancouver=len(vancouver_dataset.axes[0])
+        locationRowsVancouver = []
+        numberOfRowsVancouver=len(vancouver_dataset.axes[0])
 
-    for x in range(numberOfRowsVancouver):
-        vancouverRow = generateColumn(vancouver_dataset.iloc[x],counter, "vancouver")
-        locationRowsVancouver.append(vancouverRow)
-        counter = counter + 1
-
-    if(path.exists("data/final/vancouverLocation.csv") != False):
-        with open('data/final/vancouverLocation.csv','w', newline= '') as f:
+        for x in range(numberOfRowsVancouver):
+            vancouverRow = generateColumn(vancouver_dataset.iloc[x],counter, "vancouver")
+            locationRowsVancouver.append(vancouverRow)
+            counter = counter + 1
+        
+        with open('data/final/vancouverLocation.csv','w+', newline= '') as f:
             writer = csv.writer(f)
             writer.writerow(['Location_key','Location_name','GeoX','GeoY','Neighbourhood','City','Crime_rate','NumberOfCrimes','AvgHouseholdIncome','AvgPropValue','NumOfPrecincts'])
             for row in locationRowsVancouver:
                 writer.writerow(row)
-    else:
-        print("!! The vancouverLocation.csv file doesn't exist mate, call me back when you create it !!")
-        return
-
-# function to populated the Database with the final values of all attributes.
-# Keep in mind dever should be added before Vancouver due to the primary key if you decide
-# to comment code out.
-# This function pushes the csv files created from the createLocationCsv to the db.
-# Before calling the function add yur username and password in the connection row
-def populateDatabase(city):
-    if(city == "denver"):
-        # Populating the location table with the Denver data.
-        conn = psycopg2.connect(user = "",password = "",host = "www.eecs.uottawa.ca",port = "15432",database = "group_2") 
-        cursor = conn.cursor()
-        cursor.execute('SET search_path="CSI4142"')
-        with open('data/final/denverLocation.csv', 'r') as f:
-            next(f)
-            cursor.copy_from(f,'location', sep=',')
-            conn.commit()
-        conn.close()
-        print("DONE populating the Location table with the Denver data.")
-    else:
-        # Populating the location table with the Vancouver data.
-        conn = psycopg2.connect(user = "",password = "",host = "www.eecs.uottawa.ca",port = "15432",database = "group_2") 
-        cursor = conn.cursor()
-        cursor.execute('SET search_path="CSI4142"')
-        with open('data/final/vancouverLocation.csv', 'r') as f:
-            next(f)
-            cursor.copy_from(f,'location', sep=',')
-            conn.commit()
-        conn.close()
-        print("DONE populating the Location table with the Vancouver data.")
 
 # Creates a list of all the primary keys in the location table.
 def locationPrimaryKeys():
