@@ -272,6 +272,3 @@ def locationPrimaryKeys():
         if(x > 0):
             keys.append(x)
     return keys
-
-if __name__ == '__main__':
-    locationPrimaryKeys()
