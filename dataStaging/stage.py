@@ -23,29 +23,33 @@ def exampleCall(row):
 
 def historicLoad():
     # event dimension
+    event_data_transformed = []
+    if(os.path.isfile('data/transformed_data/transformed_event_data.csv')):
+        print("Reading transformed event data")
+        event_data_transformed = pandas.read_csv('data/transformed_data/transformed_event_data.csv')
+        print("Finished reading transformed event data")
+    else:
+        print("Transforming and extracting event data")
+        event_data_transformed = stageEvent.transform_event_data()
+        # write event data to csv for future
+        event_data_transformed.to_csv('data/transformed_data/transformed_event_data.csv')
+
+
+    # date dimension
+    date_data_transformed = []
     if(os.path.isfile('data/transformed_data/transformed_date_data.csv')):
         print("Reading transformed date data")
-        # TODO
+        date_data_transformed = pandas.read_csv('data/transformed_data/transformed_date_data.csv')
         print("Finished reading transformed date data")
     else:
         print("Extracting transformed date data")
         date_data_transformed = stageDate.transform_date(vanData, True)
         print(date_data_transformed.head())
-        print("Done extracting date data. Now enriching.")
-        date_data_transformed = stageDate.enrich_date(date_data_transformed.head(), True)
-
-    # date dimension
-    if(os.path.isfile('data/transformed_data/transformed_event_data.csv')):
-        print("Reading transformed event data")
-        # TODO
-        print("Finished reading transformed event data")
-    else:
-        print("Extracting transformed event data")
-        date_data_transformed = stageDate.transform_date(vanData, True)
-        print(date_data_transformed.head())
+        print("Enriching date data")
+        enrcriched
 
     # how to save file for next time
-    #collision_data.to_csv('data/collisions/ottawa/collision_data_transformed.csv')
+    # collision_data.to_csv('data/collisions/ottawa/collision_data_transformed.csv')
 
 
 # main

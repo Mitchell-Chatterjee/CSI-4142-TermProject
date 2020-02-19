@@ -16,7 +16,7 @@ def enrich_date(df, source):
                                             'last_day_in_week_indicator', 'last_day_in_month_indicator','calendar_week_ending_date',
                                             'calendar_week_number_in_year','calendar_month_number_in_year','calendar_month_name','calendar_year_month',
                                             'calendar_quarter','calendar_year_quarter','calendar_half_year','calendar_year','holiday_indicator',
-                                            'holiday_name','weekday_indicator','sql_date_stamp'])
+                                            'holiday_name','weekday_indicator','sql_date_stamp', 'Major_event'])
     
     for row in df:
         date_tuple = datetime.timetuple(row)
