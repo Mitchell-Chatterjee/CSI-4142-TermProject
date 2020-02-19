@@ -37,16 +37,15 @@ def historicLoad():
 
     # date dimension
     date_data_transformed = []
-    if(os.path.isfile('data/transformed_data/transformed_date_data.csv')):
-        print("Reading transformed date data")
-        date_data_transformed = pandas.read_csv('data/transformed_data/transformed_date_data.csv')
-        print("Finished reading transformed date data")
+    if(os.path.isfile('data/transformed_data/enriched_date_data.csv')):
+        print("Reading enriched date data")
+        date_data_transformed = pandas.read_csv('data/transformed_data/enriched_date_data.csv')
+        print("Finished reading enriched date data")
     else:
         print("Extracting transformed date data")
-        date_data_transformed = stageDate.transform_date(vanData, True)
+        date_data_transformed = stageDate.transform_date({'Denver':denvData, 'Vancouver':vanData})
         print(date_data_transformed.head())
         print("Enriching date data")
-        enrcriched
 
     # how to save file for next time
     # collision_data.to_csv('data/collisions/ottawa/collision_data_transformed.csv')
