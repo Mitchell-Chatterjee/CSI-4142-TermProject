@@ -50,13 +50,16 @@ CREATE TABLE DATE
 CREATE TABLE LOCATION 
 (
 	Location_key INTEGER PRIMARY KEY,
-	Location_name VARCHAR(30),
-	Longitude DOUBLE PRECISION,
-	Latitude DOUBLE PRECISION,
+	Location_name VARCHAR(120),
+	GeoX DOUBLE PRECISION,
+	GeoY DOUBLE PRECISION,
 	Neighbourhood VARCHAR(30),
 	City VARCHAR(30),
-	Crime_rate DOUBLE PRECISION
-	-- TODO: Add neighbourhood statistics here
+	Crime_rate DOUBLE PRECISION,
+	Number_Of_crimes integer,
+	Avg_household_income integer,
+	Avg_prop_value integer,
+	Num_of_precincts integer
 );
 
 -- The event dimension
