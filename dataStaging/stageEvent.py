@@ -32,5 +32,7 @@ def transform_event_data():
             df = pandas.read_csv(directory + '/'+ filename)
             # call the method to enrich and create the dataframe for each
             stage_event_data(df, event_data, filename.split('_')[0], directory.split('/')[-1])
+    # update the date to datetime format
+    event_data['Event_date'] = pandas.to_datetime(event_data['Event_date'])
 
     return event_data
