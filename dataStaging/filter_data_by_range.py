@@ -28,7 +28,6 @@ def filter_denv():
     lowerBound = datetime.datetime(2016, 1, 1)
     with open('filteredDenverCrime.csv', mode='w') as out_file:
         csvWriter = writer(out_file, delimiter=',', quotechar='"', quoting=QUOTE_MINIMAL)
-        csvWriter.writerow("")
         with open("../data/denverCrime.csv") as in_file:
             csvReader = reader(in_file, delimiter=',')
             # copy header
