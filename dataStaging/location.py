@@ -5,6 +5,7 @@ import os.path
 from os import path
 from numpy import genfromtxt, savetxt, count_nonzero
 
+
 # Returns the address of the entry
 def locationName(row, city):
     if city == "denver":
@@ -13,7 +14,10 @@ def locationName(row, city):
         else:
             return row['INCIDENT_ADDRESS']
     else:
-        return row['HUNDRED_BLOCK']
+        if pd.isna(row['HUNDRED_BLOCK']):
+            return "UNKNOWN"
+        else:
+            return row['HUNDRED_BLOCK']     
 
 # Returns the X coodinate of the entry
 def locationX(row, city):
@@ -189,7 +193,7 @@ def createLocationCsv(city):
     # ------------------------------------------------Denver csv file populating-----------------------------------------------------------
     counter = 1
     if(city == "denver"):
-        denvor_dataset = pd.read_csv('../data/denverCrime.csv')
+        denvor_dataset = pd.read_csv('../data/filteredDenverCrime.csv')
 
         locationRowsDenver = []
 
@@ -208,17 +212,21 @@ def createLocationCsv(city):
 
 # ------------------------------------------------Vancouver csv file populating-----------------------------------------------------------
     else:
-        vancouver_dataset = pd.read_csv('../data/vancouverCrime.csv')
-    
+        with open('../data/final/denverLocation.csv') as f:
+            denver_count = sum(1 for line in f)
+        counter = denver_count
+        vancouver_dataset = pd.read_csv('../data/filteredVancouverCrime.csv')
+
         locationRowsVancouver = []
+
         numberOfRowsVancouver=len(vancouver_dataset.axes[0])
 
         for x in range(numberOfRowsVancouver):
             vancouverRow = generateColumn(vancouver_dataset.iloc[x],counter, "vancouver")
             locationRowsVancouver.append(vancouverRow)
             counter = counter + 1
-        
-        with open('../data/final/vancouverLocation.csv','w+', newline= '') as f:
+
+        with open('../data/final/vancouverlocation.csv','w+', newline= '') as f:
             writer = csv.writer(f)
             writer.writerow(['Location_key','Location_name','GeoX','GeoY','Neighbourhood','City','Crime_rate','NumberOfCrimes','AvgHouseholdIncome','AvgPropValue','NumOfPrecincts'])
             for row in locationRowsVancouver:
