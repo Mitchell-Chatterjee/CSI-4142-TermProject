@@ -10,16 +10,18 @@ class City(Enum):
     DENVER = 2
 
 # Returns only the date in datetime format
-def truncate_date(df, city, event_data):
+def truncate_date(df, city, event_data, index):
     # parse date data into a datetime format
     trunc_df = pandas.DataFrame(columns=['Date', 'Event_keys'])
     if (city == City.VANCOUVER):
         trunc_df['Date'] = pandas.to_datetime(df[['YEAR','MONTH','DAY']])
     elif (city == City.DENVER):
         trunc_df['Date'] = pandas.to_datetime(df['FIRST_OCCURRENCE_DATE']).dt.date
+        trunc_df['Date'] = pandas.to_datetime(trunc_df['Date'])
 
     # set a key before merging
-    trunc_df['Date_key'] = trunc_df.index
+    trunc_df['Date_key'] = trunc_df.index + index
+
     # merge with event data to get overlap between dates and events
     event_indices = pandas.merge(trunc_df, event_data[['Event_key', 'Event_date']], how='left', left_on='Date', right_on='Event_date')
     event_indices = event_indices.drop(columns=['Date', 'Event_date'])
@@ -28,15 +30,6 @@ def truncate_date(df, city, event_data):
 
     # assign the event_key values to the date_keys
     trunc_df['Event_keys'] = grp['Event_key']
-    print(trunc_df['Event_keys'])
-
-    ## iterate over the groups and add the keys to the set of event keys for each date
-    #for key, item in grp:
-    #    trunc_df.at[item['Date_key'], 'Event_keys'] = item['Event_key']
-
-    print(trunc_df)
-    print("here")
-    os.system("PAUSE")
 
     return trunc_df
 
@@ -76,41 +69,6 @@ def enrich_date(enriched_df, df, city, event_data):
     enriched_df['major_event'] = df['Date'].isin(event_data['Event_date'])
     #enriched_df['event_keys'] = df['Date'].intersection(event_data['Event_date'])
 
-    
-    ## instead of going by row go by column
-    #for idx, row in df.iterrows():
-    #    # convert to date tuple, for useful info
-    #    date_tuple = datetime.timetuple(row['Date'])
-    #
-    #    new_row =   [
-    #                    len(enriched_df) + 1,                           # 'date_key'
-    #                    row['Date'],                                    # 'recorded_date'
-    #                    row['Date'],                                    # 'full_date_description'
-    #                    date_tuple.tm_wday,                             # 'day_of_week'
-    #                    date_tuple.tm_yday,                             # 'day_number_in_epoch'
-    #                    datetime.isocalendar(row['Date'])[1] ,          # 'week_number_in_epoch'  
-    #                    date_tuple.tm_mon,                              # 'month_number_in_epoch'
-    #                    date_tuple.tm_mday,                             # 'day_number_in_calendar_month'
-    #                    date_tuple.tm_yday,                             # 'day_number_in_calendar_year'
-    #                    date_tuple.tm_wday == 7,                        # 'last_day_in_week_indicator'
-    #                    date_tuple.tm_mday == calendar.monthrange(date_tuple.tm_year,date_tuple.tm_mon)[1],     # 'last_day_in_month_indicator'
-    #                    row['Date'] + timedelta(days = (7 - date_tuple.tm_wday)),                                       # 'calendar_week_ending_date'
-    #                    date_tuple.tm_yday // 7 + 1,                    # 'calendar_week_number_in_year'
-    #                    date_tuple.tm_mon,                              # 'calendar_month_number_in_year'
-    #                    calendar.month_name[date_tuple.tm_mon],         # 'calendar_month_name'
-    #                    date_tuple.tm_mon,                              # 'calendar_year_month'
-    #                    (date_tuple.tm_mon - 1) // 3 + 1,               # 'calendar_quarter'
-    #                    (date_tuple.tm_mon - 1) // 3 + 1,               # 'calendar_year_quarter'
-    #                    (date_tuple.tm_mon - 1) // 6 + 1,               # 'calendar_half_year'
-    #                    date_tuple.tm_year,                             # 'calendar_year'
-    #                    row['Date'].isin(holiday_list),                    # 'holiday_indicator'
-    #                    holiday_list.get(row['Date']),                  # 'holiday_name'
-    #                    1 < date_tuple.tm_wday < 6,                     # 'weekday_indicator'
-    #                    datetime.now(),                                 # 'sql_date_stamp'
-    #                    None                                            # 'major_event'
-    #                ]
-    #    enriched_df.loc[len(enriched_df)] = new_row
-
     print(enriched_df.head())
 
     return enriched_df
@@ -123,9 +81,6 @@ def transform_date(dataframes, event_data):
                                             'calendar_week_number_in_year','calendar_month_number_in_year','calendar_month_name','calendar_year_month',
                                             'calendar_quarter','calendar_year_quarter','calendar_half_year','calendar_year','holiday_indicator',
                                             'holiday_name', 'major_event', 'weekday_indicator','sql_date_stamp'])
-    
-    van_data = []
-    denv_data = []
 
     # truncate dates to only include the main dates
     #if(os.path.isfile('data/transformed_data/transformed_van_date_data.csv')):
@@ -142,15 +97,27 @@ def transform_date(dataframes, event_data):
     #    denv_data = pandas.DataFrame(truncate_date(dataframes['Denver'], City.DENVER), columns=['Date'])
     #    denv_data.to_csv('data/transformed_data/transformed_denv_date_data.csv')
 
-    # truncate the date and add an key column
-    van_data = pandas.DataFrame(truncate_date(dataframes['Vancouver'], City.VANCOUVER, event_data))
-    print("van: ", van_data)
-    os.system("PAUSE")
+    # truncate and add events to vancouver data
+    index = 1
+    van_data = pandas.DataFrame(truncate_date(dataframes['Vancouver'], City.VANCOUVER, event_data, index))
+    print("van")
+    print(van_data.tail())
 
+    # truncate and add events to denver data
+    index = len(van_data) + 1
+    denv_data = pandas.DataFrame(truncate_date(dataframes['Denver'], City.DENVER, event_data, index))
+    print("denv")
+    print(denv_data.head())
+
+    # append the two dataframes for crime fact
+    date_event_keys = van_data.append(denv_data, ignore_index=True)
+    print(date_event_keys)
 
     # enrich dates
-    enriched_van_data = enrich_date(enriched_df, van_data, City.VANCOUVER, event_data)
-    enriched_van_data.to_csv('data/transformed_data/enriched_van_date_data.csv')
+    #enriched_van_data = enrich_date(enriched_df, van_data, City.VANCOUVER, event_data)
+    #enriched_van_data.to_csv('data/transformed_data/enriched_van_date_data.csv')
+    #enriched_denv_data = enrich_date(enriched_df, denv_data, City.DENVER, event_data)
+    #enriched_denv_data.to_csv('data/transformed_data/enriched_denv_date_data.csv')
 
-    return van_data
+    return date_event_keys
     

@@ -38,7 +38,7 @@ def historicLoad():
 
 
     # date dimension
-    date_data_transformed = []
+    date_data_transformed = pandas.DataFrame()
     if(os.path.isfile('data/transformed_data/enriched_date_data.csv')):
         print("Reading enriched date data")
         date_data_transformed = pandas.read_csv('data/transformed_data/enriched_date_data.csv')
