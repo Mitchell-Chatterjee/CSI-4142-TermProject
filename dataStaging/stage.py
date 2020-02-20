@@ -3,7 +3,6 @@ import os.path
 from connect import Database
 from location import createLocationCsv
 
-
 denvData= pandas.read_csv("../data/filteredDenverCrime.csv")
 vanData= pandas.read_csv("../data/filteredVancouverCrime.csv")
 

@@ -5,7 +5,6 @@ import os.path
 from os import path
 from numpy import genfromtxt, savetxt, count_nonzero
 
-
 # Returns the address of the entry
 def locationName(row, city):
     if city == "denver":
@@ -226,7 +225,7 @@ def createLocationCsv(city):
             locationRowsVancouver.append(vancouverRow)
             counter = counter + 1
 
-        with open('../data/final/vancouverlocation.csv','w+', newline= '') as f:
+        with open('../data/final/vancouverLocation.csv','w+', newline= '') as f:
             writer = csv.writer(f)
             writer.writerow(['Location_key','Location_name','GeoX','GeoY','Neighbourhood','City','Crime_rate','NumberOfCrimes','AvgHouseholdIncome','AvgPropValue','NumOfPrecincts'])
             for row in locationRowsVancouver:
