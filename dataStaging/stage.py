@@ -49,7 +49,6 @@ def historicLoad():
         print(date_data_transformed.head())
         print("Enriching date data")
 
-    breakpoint()
 
     # how to save file for next time
     # collision_data.to_csv('data/collisions/ottawa/collision_data_transformed.csv')
