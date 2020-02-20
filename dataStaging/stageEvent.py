@@ -25,7 +25,7 @@ def transform_event_data():
                                            'Event_Location', 'Percentage_capacity'])
 
     # read in all the sports data
-    directory = 'data/event_data/sports'
+    directory = '../data/event_data/sports'
     for filename in os.listdir(directory):
         if filename.endswith(".csv"):
             # get the file

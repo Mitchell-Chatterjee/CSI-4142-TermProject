@@ -7,8 +7,8 @@ import os
 import stageDate
 import stageEvent
 
-denvData= pandas.read_csv("data/filteredDenverCrime.csv")
-vanData= pandas.read_csv("data/filteredVancouverCrime.csv")
+denvData= pandas.read_csv("../data/filteredDenverCrime.csv")
+vanData= pandas.read_csv("../data/filteredVancouverCrime.csv")
 
 def exampleCall(row):
     print(row)
@@ -26,13 +26,13 @@ def historicLoad():
     event_data_transformed = []
     if(os.path.isfile('data/transformed_data/transformed_event_data.csv')):
         print("Reading transformed event data")
-        event_data_transformed = pandas.read_csv('data/transformed_data/transformed_event_data.csv', parse_dates = ['Event_date'])
+        event_data_transformed = pandas.read_csv('../data/transformed_data/transformed_event_data.csv', parse_dates = ['Event_date'])
         print("Finished reading transformed event data")
     else:
         print("Transforming and extracting event data")
         event_data_transformed = stageEvent.transform_event_data()
         # write event data to csv for future
-        event_data_transformed.to_csv('data/transformed_data/transformed_event_data.csv', index=False)
+        event_data_transformed.to_csv('../data/transformed_data/transformed_event_data.csv', index=False)
 
     # need to merge event data with date data
 
@@ -48,6 +48,8 @@ def historicLoad():
         date_data_transformed = stageDate.transform_date({'Denver':denvData, 'Vancouver':vanData}, event_data_transformed)
         print(date_data_transformed.head())
         print("Enriching date data")
+
+    breakpoint()
 
     # how to save file for next time
     # collision_data.to_csv('data/collisions/ottawa/collision_data_transformed.csv')
