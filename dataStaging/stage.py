@@ -51,11 +51,19 @@ def historicLoad():
         print(date_data_transformed.head())
         print("Enriching date data")
 
+    # crime dimension
+    if os.path.isfile('../data/final/denvCrimeDim.csv') \
+            and os.path.isfile('../data/final/vanCrimeDim.csv'):
+        print("Crime dimension csv files found")
+    else:
+        print("No Crime csv files found. Rebuilding crime files")
+        gen_crime_csvs(vanData, denvData)
+
+    #loadCrime()
 
     # how to save file for next time
     # collision_data.to_csv('data/collisions/ottawa/collision_data_transformed.csv')
 
-historicLoad()
 
 # main
 dbConn = Database()
@@ -111,7 +119,6 @@ def loadCrime():
     else:
         print("Error fact csvs do not exist")
 
-#gen_crime_csvs(vanData, denvData)
-loadCrime()
+historicLoad()
 
 del dbConn
