@@ -43,11 +43,9 @@ total 56
 -rw-r--r-- 1 rchang rchang 2139 Feb 20 23:32 filter_data_by_range.py
 -rw-r--r-- 1 rchang rchang 8802 Feb 20 23:32 location.py
 -rw-r--r-- 1 rchang rchang 7172 Feb 20 23:32 pop_crime.py
-drwxr-xr-x 2 rchang rchang 4096 Feb 20 23:14 __pycache__/
 -rw-r--r-- 1 rchang rchang 6181 Feb 20 23:32 stageDate.py
 -rw-r--r-- 1 rchang rchang 1977 Feb 20 23:32 stageEvent.py
 -rw-r--r-- 1 rchang rchang 4568 Feb 20 23:32 stage.py
-drwxr-xr-x 6 rchang rchang 4096 Feb 20 01:56 venv/
 ```
 - Run the Script with:
 ```
