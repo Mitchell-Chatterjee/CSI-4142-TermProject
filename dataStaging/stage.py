@@ -2,6 +2,8 @@ import pandas
 import os.path
 from connect import Database
 import os
+from location import createLocationCsv
+from stageFact import gen_fact_csvs
 
 # file imports
 import stageDate
@@ -61,6 +63,16 @@ def historicLoad():
 
     #loadCrime()
 
+    # fact dimension
+    if os.path.isfile('../data/final/denvFact.csv') and os.path.isfile('../data/final/vanFact.csv'):
+        print("Fact csv files found")
+    else:
+        print("No fact csv files found. Rebuilding fact files")
+        gen_fact_csvs(vanData, denvData, date_data_transformed)
+    
+    # !!! This part must be at the end !!!
+    #loadFact()
+
     # how to save file for next time
     # collision_data.to_csv('data/collisions/ottawa/collision_data_transformed.csv')
 
@@ -118,6 +130,28 @@ def loadCrime():
         print("DONE populating the crime table with the vancouver data!")
     else:
         print("Error fact csvs do not exist")
+
+historicLoad()
+
+# This function will load the fact data into the db.
+def loadFact():
+    if os.path.isfile('../data/final/denvFact.csv') and os.path.isfile('../data/final/vanFact.csv'):
+        dbConn.cursor.execute('SET search_path="CSI4142"')
+        print("Reading Denver fact Data...")
+        with open('../data/final/denvFact.csv', 'r') as f:
+            next(f)
+            dbConn.cursor.copy_from(f, 'crime_fact', sep=',', null="None")
+            dbConn.connection.commit()
+        print("Done populating the fact table with the Denver data")
+
+        print("Reading Vancouver fact Data...")
+        with open('../data/final/vanFact.csv', 'r') as f:
+            next(f)
+            dbConn.cursor.copy_from(f, 'crime_fact', sep=',', null="None")
+            dbConn.connection.commit()
+        print("Done populating the fact table with the vancouver data")
+    else:
+        print("Error: fact csvs do not exist")
 
 historicLoad()
 

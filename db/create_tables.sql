@@ -109,3 +109,4 @@ CREATE TABLE CRIME_FACT
 		REFERENCES EVENT(Event_key),
 	PRIMARY KEY (Date_key, Location_key, Crime_key, Event_key)
 );
+GRANT ALL privileges ON CRIME_FACT to PUBLIC
