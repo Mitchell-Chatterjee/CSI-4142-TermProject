@@ -1,4 +1,5 @@
 # CSI4142 Project
+- Our data is stored in the database: group_2 in the schema: FinalSubmission
 
 ## Data Staging scripts 
 
