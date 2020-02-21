@@ -44,7 +44,6 @@ drwxr-xr-x 2 rchang rchang 4096 Feb 20 23:14 __pycache__/
 -rw-r--r-- 1 rchang rchang 1977 Feb 20 23:32 stageEvent.py
 -rw-r--r-- 1 rchang rchang 4568 Feb 20 23:32 stage.py
 drwxr-xr-x 6 rchang rchang 4096 Feb 20 01:56 venv/
-- Execute the file stage.py with
 ```
 - Run the Script with:
 ```
