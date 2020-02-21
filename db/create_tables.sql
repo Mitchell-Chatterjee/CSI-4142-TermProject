@@ -9,7 +9,7 @@ SET search_path = "CSI4142";
 -- The date dimension
 CREATE TABLE DATE
 (
-    date_key integer PRIMARY KEY,
+    date_key integer NOT NULL,
     recorded_date date,
     full_date_description date,
     day_of_week integer,
@@ -20,31 +20,33 @@ CREATE TABLE DATE
     day_number_in_calendar_year integer,
     last_day_in_week_indicator boolean,
     last_day_in_month_indicator boolean,
-    calendar_week_ending_date integer,
+    calendar_week_ending_date date,
     calendar_week_number_in_year integer,
     calendar_month_number_in_year integer,
     calendar_month_name character varying(40) COLLATE pg_catalog."default",
-    calendar_year_month character varying(7) COLLATE pg_catalog."default",
+    calendar_year_month integer,
     calendar_quarter integer,
     calendar_year_quarter integer,
     calendar_half_year integer,
     calendar_year integer,
-    fiscal_week character varying(20) COLLATE pg_catalog."default",
-    fiscal_week_number_in_year integer,
-    fiscal_month integer,
-    fiscal_month_number_in_year integer,
-    fiscal_year_month integer,
-    fiscal_quarter integer,
-    fiscal_year_quarter integer,
-    fiscal_half_year integer,
-    fiscal_year integer,
     holiday_indicator boolean,
-	holiday_name VARCHAR(40),
+    holiday_name character varying(40) COLLATE pg_catalog."default",
     weekday_indicator boolean,
-    selling_season boolean,
     major_event boolean,
-    sql_date_stamp date
-);
+    sql_date_stamp date,
+    CONSTRAINT date_pkey PRIMARY KEY (date_key)
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE date
+    OWNER to mchat022;
+
+GRANT ALL ON TABLE date TO mchat022;
+
+GRANT ALL ON TABLE date TO rchan086;
 
 -- The location dimension
 CREATE TABLE LOCATION 
@@ -65,15 +67,34 @@ CREATE TABLE LOCATION
 -- The event dimension
 CREATE TABLE EVENT
 (
-	Event_key INTEGER PRIMARY KEY,
-	Event_name VARCHAR(20),
-	Event_type VARCHAR(20),
-	Event_location VARCHAR(20), 			-- This may be a reference to the location dimension, unsure
-	Event_attendance INTEGER,			
-	Venue_size DOUBLE PRECISION,			-- Need to have a unit here to define size	
-	Alcohol_allowed BOOLEAN,
-	Target_age_group INTEGER
-);
+    event_key integer NOT NULL,
+    event_name character varying(20) COLLATE pg_catalog."default",
+    event_type character varying(20) COLLATE pg_catalog."default",
+	city character varying(20) COLLATE pg_catalog."default",
+	event_attendance integer,
+	event_date date,
+	venue_size double precision,
+	alcohol_allowed boolean,
+    event_location character varying(40) COLLATE pg_catalog."default",
+    percentage_capacity double precision,
+    CONSTRAINT event_pkey PRIMARY KEY (event_key)
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE event
+    OWNER to mchat022;
+
+GRANT ALL ON TABLE event TO mchat022;
+
+GRANT ALL ON TABLE event TO rchan086;
+
+-- Must insert an empty event into the event table
+INSERT INTO EVENT
+VALUES
+(0, 'NO EVENT', 'NO EVENT', 'NO EVENT', 0, '2020-1-1', 0, false, 'NO EVENT', 0);
 
 -- The crime dimension
 CREATE TABLE CRIME
@@ -86,7 +107,7 @@ CREATE TABLE CRIME
 	Crime_category VARCHAR(20) NOT NULL,
 	Crime_severity_index INTEGER NOT NULL
 );
-GRANT ALL privileges ON CRIME to PUBLIC
+GRANT ALL privileges ON CRIME to PUBLIC;
 
 -- The main fact table
 CREATE TABLE CRIME_FACT
@@ -109,4 +130,4 @@ CREATE TABLE CRIME_FACT
 		REFERENCES EVENT(Event_key),
 	PRIMARY KEY (Date_key, Location_key, Crime_key, Event_key)
 );
-GRANT ALL privileges ON CRIME_FACT to PUBLIC
+GRANT ALL privileges ON CRIME_FACT to PUBLIC;

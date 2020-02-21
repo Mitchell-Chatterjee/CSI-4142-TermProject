@@ -19,6 +19,20 @@ class Database:
 
     def __del__(self):
         self.disconnect()
+
+    def writeFiletoDB(self, file_handle, table_name):
+        try:
+            with self.connection.cursor() as curs:
+                curs.execute('SET search_path="CSI4142"')
+                curs.copy_from(file_handle, table_name, sep=',', null="None")
+                self.connection.commit()
+            print("!Transaction successful for:", table_name, "!")
+        except Exception as err:
+            print("---------------")
+            print("DB Exception: ", err)
+            print("Rolling back")
+            print("---------------")
+            self.connection.rollback()
         
     
     def testConnection(self):

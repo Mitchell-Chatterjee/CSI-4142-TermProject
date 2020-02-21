@@ -25,10 +25,12 @@ def exampleCall(row):
 # for index, row in vanData.iterrows():
 #     exampleCall(row)
 
-def historicLoad():
+def historicLoad(dbConn):
+    loadLocation("denver")
+    loadLocation("vancouver")
     # event dimension
     event_data_transformed = []
-    if(os.path.isfile('data/transformed_data/transformed_event_data.csv')):
+    if(os.path.isfile('../data/transformed_data/transformed_event_data.csv')):
         print("Reading transformed event data")
         event_data_transformed = pandas.read_csv('../data/transformed_data/transformed_event_data.csv', parse_dates = ['Event_date'])
         print("Finished reading transformed event data")
@@ -37,21 +39,18 @@ def historicLoad():
         event_data_transformed = stageEvent.transform_event_data()
         # write event data to csv for future
         event_data_transformed.to_csv('../data/transformed_data/transformed_event_data.csv', index=False)
-
-    # need to merge event data with date data
+        print("Done extracting event data")
+        print()
+    # load event data to the database
+    stageEvent.load_to_database(event_data_transformed, dbConn)
+    
 
 
     # date dimension
-    date_data_transformed = pandas.DataFrame()
-    if(os.path.isfile('data/transformed_data/enriched_date_data.csv')):
-        print("Reading enriched date data")
-        date_data_transformed = pandas.read_csv('data/transformed_data/enriched_date_data.csv')
-        print("Finished reading enriched date data")
-    else:
-        print("Extracting transformed date data")
-        date_data_transformed = stageDate.transform_date({'Denver':denvData, 'Vancouver':vanData}, event_data_transformed)
-        print(date_data_transformed.head())
-        print("Enriching date data")
+    print("Extracting transformed date data")
+    date_data_transformed = stageDate.transform_date({'Denver':denvData, 'Vancouver':vanData}, event_data_transformed, dbConn)
+    print("Enriching date data")
+
 
     # crime dimension
     if os.path.isfile('../data/final/denvCrimeDim.csv') \
@@ -61,7 +60,7 @@ def historicLoad():
         print("No Crime csv files found. Rebuilding crime files")
         gen_crime_csvs(vanData, denvData)
 
-    #loadCrime()
+    loadCrime()
 
     # fact dimension
     if os.path.isfile('../data/final/denvFact.csv') and os.path.isfile('../data/final/vanFact.csv'):
@@ -71,88 +70,90 @@ def historicLoad():
         gen_fact_csvs(vanData, denvData, date_data_transformed)
     
     # !!! This part must be at the end !!!
-    #loadFact()
-
-    # how to save file for next time
-    # collision_data.to_csv('data/collisions/ottawa/collision_data_transformed.csv')
+    loadFact()
 
 
-# main
-dbConn = Database()
 # This function will load the location data into the db.
 def loadLocation(city):
     if(city == "denver"):
         if os.path.isfile('../data/final/denverLocation.csv'):
-            dbConn.cursor.execute('SET search_path="CSI4142"')
-            print("Reading Transformed Denver location Data...")
-            with open('../data/final/denverLocation.csv', 'r') as f:
-                next(f)
-                dbConn.cursor.copy_from(f,'location', sep=',')
-                dbConn.connection.commit()
+            try:
+                print("Reading Transformed Denver location Data...")
+                with open('../data/final/denverLocation.csv', 'r') as f:
+                    next(f)
+                    dbConn.writeFiletoDB(f, 'location')
+            except Exception as err:
+                print("---------------")
+                print("Exception: ", err)
+                print("---------------")
         else:
             print(" Creating 'denverLocation.csv' file and populating the file (This will take a while)")
             createLocationCsv("denver")
             loadLocation("denver")
-        print("DONE populating the Location table with the Denver data!")
     else:
         # Populating the location table with the Vancouver data.
         if os.path.isfile('../data/final/vancouverLocation.csv'):
-            dbConn.cursor.execute('SET search_path="CSI4142"')
-            print("Reading Transformed Vancouver location Data...")
-            with open('../data/final/vancouverLocation.csv', 'r') as f:
-                next(f)
-                dbConn.cursor.copy_from(f,'location', sep=',')
-                dbConn.connection.commit()
+            try:
+                print("Reading Transformed Vancouver location Data...")
+                with open('../data/final/vancouverLocation.csv', 'r') as f:
+                    next(f)
+                    dbConn.writeFiletoDB(f, 'location')
+            except Exception as err:
+                print("---------------")
+                print("Exception: ", err)
+                print("---------------")
+
+
         else:
             print(" Creating 'vancouverLocation.csv' file and populating the file (This will take a while)")
             createLocationCsv("vancouver")
             loadLocation("vancouver")
-        print("DONE populating the Location table with the Vancouver data!")
 
 # This function will load the crime data into the db.
 def loadCrime():
     if os.path.isfile('../data/final/denvCrimeDim.csv') \
             and os.path.isfile('../data/final/vanCrimeDim.csv'):
-        dbConn.cursor.execute('SET search_path="CSI4142"')
+        try:
+            print("Reading Transformed Denver crim Data...")
+            with open('../data/final/denvCrimeDim.csv', 'r') as f:
+                next(f)
+                dbConn.writeFiletoDB(f, 'crime')
 
-        print("Reading Transformed Denver crim Data...")
-        with open('../data/final/denvCrimeDim.csv', 'r') as f:
-            next(f)
-            dbConn.cursor.copy_from(f,'crime', sep=',', null="None")
-            dbConn.connection.commit()
-        print("DONE populating the crime table with the Denver data!")
-
-        print("Reading Transformed Vancouver crime Data...")
-        with open('../data/final/vanCrimeDim.csv', 'r') as f:
-            next(f)
-            dbConn.cursor.copy_from(f,'crime', sep=',', null="None")
-            dbConn.connection.commit()
-        print("DONE populating the crime table with the vancouver data!")
+            print("Reading Transformed Vancouver crime Data...")
+            with open('../data/final/vanCrimeDim.csv', 'r') as f:
+                next(f)
+                dbConn.writeFiletoDB(f, 'crime')
+        except Exception as err:
+            print("---------------")
+            print("Exception: ", err)
+            print("---------------")
     else:
         print("Error fact csvs do not exist")
-
-historicLoad()
 
 # This function will load the fact data into the db.
 def loadFact():
     if os.path.isfile('../data/final/denvFact.csv') and os.path.isfile('../data/final/vanFact.csv'):
-        dbConn.cursor.execute('SET search_path="CSI4142"')
-        print("Reading Denver fact Data...")
-        with open('../data/final/denvFact.csv', 'r') as f:
-            next(f)
-            dbConn.cursor.copy_from(f, 'crime_fact', sep=',', null="None")
-            dbConn.connection.commit()
-        print("Done populating the fact table with the Denver data")
+        try:
+            print("Reading Denver fact Data...")
+            with open('../data/final/denvFact.csv', 'r') as f:
+                next(f)
+                dbConn.writeFiletoDB(f, 'crime_fact')
 
-        print("Reading Vancouver fact Data...")
-        with open('../data/final/vanFact.csv', 'r') as f:
-            next(f)
-            dbConn.cursor.copy_from(f, 'crime_fact', sep=',', null="None")
-            dbConn.connection.commit()
-        print("Done populating the fact table with the vancouver data")
+            print("Reading Vancouver fact Data...")
+            with open('../data/final/vanFact.csv', 'r') as f:
+                next(f)
+                dbConn.writeFiletoDB(f, 'crime_fact')
+        except Exception as err:
+            print("---------------")
+            print("Exception: ", err)
+            print("---------------")
     else:
         print("Error: fact csvs do not exist")
 
-historicLoad()
 
+# main
+dbConn = Database()
+# load location data
+# load all other data
+historicLoad(dbConn)
 del dbConn

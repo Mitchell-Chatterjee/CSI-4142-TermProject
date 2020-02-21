@@ -1,5 +1,6 @@
 import pandas
 import os
+import csv
 
 def stage_event_data(df, event_data, name, type):
     # add to the event_data dataframe row by row of each dataframe
@@ -18,6 +19,7 @@ def stage_event_data(df, event_data, name, type):
                     ]
         event_data.loc[len(event_data)] = new_row
 
+
 def transform_event_data():
     # create the dataframe
     event_data = pandas.DataFrame(columns=['Event_key', 'Event_name', 'Event_type', 'City',
@@ -35,4 +37,19 @@ def transform_event_data():
     # update the date to datetime format
     event_data['Event_date'] = pandas.to_datetime(event_data['Event_date'])
 
+
     return event_data
+
+
+def load_to_database(df, dbConn):
+
+    try:
+        print("Loading event data to database")
+        with open('../data/transformed_data/transformed_event_data.csv', 'r') as f:
+            next(f)
+            dbConn.writeFiletoDB(f, 'event')
+    except Exception as err:
+        print("---------------")
+        print("Exception: ", err)
+        print("---------------")
+        print("Rolling back")

@@ -4,6 +4,7 @@ import holidays
 import os
 from enum import Enum
 from datetime import datetime, timedelta
+from pandas.tseries.offsets import *
 
 class City(Enum):
     VANCOUVER = 1
@@ -17,6 +18,7 @@ def truncate_date(df, city, event_data, index):
         trunc_df['Date'] = pandas.to_datetime(df[['YEAR','MONTH','DAY']])
     elif (city == City.DENVER):
         trunc_df['Date'] = pandas.to_datetime(df['FIRST_OCCURRENCE_DATE']).dt.date
+        # must convert to date again after truncating
         trunc_df['Date'] = pandas.to_datetime(trunc_df['Date'])
 
     # set a key before merging
@@ -34,7 +36,14 @@ def truncate_date(df, city, event_data, index):
     return trunc_df
 
 # Method used to enrich date data to be uploaded to database
-def enrich_date(enriched_df, df, city, event_data):
+def enrich_date(df, city, event_data, index):
+    # create the dataframe
+    enriched_df = pandas.DataFrame(columns=['date_key', 'recorded_date','full_date_description','day_of_week','day_number_in_epoch', 
+                                            'week_number_in_epoch','month_number_in_epoch', 'day_number_in_calendar_month','day_number_in_calendar_year', 
+                                            'last_day_in_week_indicator', 'last_day_in_month_indicator','calendar_week_ending_date',
+                                            'calendar_week_number_in_year','calendar_month_number_in_year','calendar_month_name','calendar_year_month',
+                                            'calendar_quarter','calendar_year_quarter','calendar_half_year','calendar_year','holiday_indicator',
+                                            'holiday_name', 'major_event', 'weekday_indicator','sql_date_stamp'])
     #print(df.head())
     # get holidays
     if(city == City.VANCOUVER):
@@ -42,7 +51,7 @@ def enrich_date(enriched_df, df, city, event_data):
     elif(city == City.DENVER):
         holiday_list = holidays.UnitedStates()
 
-    enriched_df['date_key'] = df.index + 1
+    enriched_df['date_key'] = df.index + index
     enriched_df['recorded_date'] = df['Date']
     enriched_df['full_date_description'] = df['Date']
     enriched_df['day_of_week'] = df['Date'].dt.dayofweek
@@ -52,72 +61,85 @@ def enrich_date(enriched_df, df, city, event_data):
     enriched_df['day_number_in_calendar_month'] = df['Date'].dt.day
     enriched_df['day_number_in_calendar_year'] = df['Date'].dt.dayofyear
     enriched_df['last_day_in_week_indicator'] = enriched_df['day_of_week'] == 6
-    enriched_df['last_day_in_month_indicator'] == df['Date'].dt.is_month_end
-    #enriched_df['calendar_week_ending_date'] = df['Date'] + timedelta(days = (7 - df['Date'].dt.dayofweek))
+    enriched_df['last_day_in_month_indicator'] = df['Date'].dt.is_month_end
+    enriched_df['calendar_week_ending_date'] = df['Date'].where( df['Date'] == (( df['Date'] + Week(weekday=6) ) - Week()), df['Date'] + Week(weekday=6))
     enriched_df['calendar_week_number_in_year'] = df['Date'].dt.week
     enriched_df['calendar_month_number_in_year'] = df['Date'].dt.month
-    #enriched_df['calendar_month_name'] = calendar.month_name[df['Date'].dt.month]
+    enriched_df['calendar_month_name'] = df['Date'].dt.month_name()
     enriched_df['calendar_year_month'] = df['Date'].dt.month
     enriched_df['calendar_quarter'] = df['Date'].dt.quarter
     enriched_df['calendar_year_quarter'] = df['Date'].dt.quarter
     enriched_df['calendar_half_year'] = df['Date'].dt.quarter // 3 + 1
     enriched_df['calendar_year'] = df['Date'].dt.year
     enriched_df['holiday_indicator'] = df['Date'].isin(holiday_list)
-    #enriched_df['holiday_name'] = holiday_list.get(df['Date'])
     enriched_df['weekday_indicator'] = (df['Date'].dt.dayofweek % 6) != 0
     enriched_df['sql_date_stamp'] = datetime.now()
     enriched_df['major_event'] = df['Date'].isin(event_data['Event_date'])
-    #enriched_df['event_keys'] = df['Date'].intersection(event_data['Event_date'])
+
+    # must incrementally create the holiday_name row
+    for i in range(len(enriched_df)):
+        enriched_df.at[i, 'holiday_name'] = holiday_list.get((enriched_df.at[i, 'recorded_date']))
+        if(enriched_df.at[i, 'holiday_name']):
+            enriched_df.at[i, 'holiday_name'] = enriched_df.at[i, 'holiday_name'].replace(",", "")
+
+
 
     print(enriched_df.head())
 
     return enriched_df
 
-def transform_date(dataframes, event_data):
-    # create the dataframe
-    enriched_df = pandas.DataFrame(columns=['date_key', 'recorded_date','full_date_description','day_of_week','day_number_in_epoch', 
-                                            'week_number_in_epoch','month_number_in_epoch', 'day_number_in_calendar_month','day_number_in_calendar_year', 
-                                            'last_day_in_week_indicator', 'last_day_in_month_indicator','calendar_week_ending_date',
-                                            'calendar_week_number_in_year','calendar_month_number_in_year','calendar_month_name','calendar_year_month',
-                                            'calendar_quarter','calendar_year_quarter','calendar_half_year','calendar_year','holiday_indicator',
-                                            'holiday_name', 'major_event', 'weekday_indicator','sql_date_stamp'])
+def load_to_database(dbConn):
+    try:
+        print("Loading date data to database")
+        with open('../data/transformed_data/all_enriched_date_data.csv', 'r') as f:
+            next(f)
+            dbConn.writeFiletoDB(f, 'date')
+        print("Done loading to Database")
+    except Exception as err:
+        print("---------------")
+        print("Exception: ", err)
+        print("---------------")
 
-    # truncate dates to only include the main dates
-    #if(os.path.isfile('data/transformed_data/transformed_van_date_data.csv')):
-    #    print("Vancouver date data already exists. Reading.")
-    #    van_data = pandas.read_csv('data/transformed_data/transformed_van_date_data.csv', parse_dates=[1])
-    #else:
-    #    van_data = pandas.DataFrame(truncate_date(dataframes['Vancouver'], City.VANCOUVER), columns=['Date'])
-    #    van_data.to_csv('data/transformed_data/transformed_van_date_data.csv')
+def transform_date(dataframes, event_data, dbConn):
 
-    #if(os.path.isfile('data/transformed_data/transformed_denv_date_data.csv')):
-    #    print("Denver date data already exists. Reading.")
-    #    denv_data = pandas.read_csv('data/transformed_data/transformed_denv_date_data.csv', parse_dates=[1])
-    #else:
-    #    denv_data = pandas.DataFrame(truncate_date(dataframes['Denver'], City.DENVER), columns=['Date'])
-    #    denv_data.to_csv('data/transformed_data/transformed_denv_date_data.csv')
 
     # truncate and add events to vancouver data
     index = 1
-    van_data = pandas.DataFrame(truncate_date(dataframes['Vancouver'], City.VANCOUVER, event_data, index))
-    print("van")
-    print(van_data.tail())
+    denv_data = pandas.DataFrame(truncate_date(dataframes['Denver'], City.DENVER, event_data, index))
 
     # truncate and add events to denver data
-    index = len(van_data) + 1
-    denv_data = pandas.DataFrame(truncate_date(dataframes['Denver'], City.DENVER, event_data, index))
-    print("denv")
-    print(denv_data.head())
+    index = len(denv_data) + 1
+    van_data = pandas.DataFrame(truncate_date(dataframes['Vancouver'], City.VANCOUVER, event_data, index))
 
     # append the two dataframes for crime fact
-    date_event_keys = van_data.append(denv_data, ignore_index=True)
-    print(date_event_keys)
+    date_event_keys = denv_data.append(van_data, ignore_index=True)
 
     # enrich dates
-    #enriched_van_data = enrich_date(enriched_df, van_data, City.VANCOUVER, event_data)
-    #enriched_van_data.to_csv('data/transformed_data/enriched_van_date_data.csv')
-    #enriched_denv_data = enrich_date(enriched_df, denv_data, City.DENVER, event_data)
-    #enriched_denv_data.to_csv('data/transformed_data/enriched_denv_date_data.csv')
+    if(os.path.isfile('../data/transformed_data/all_enriched_date_data.csv')):
+        all_enriched_date_data = pandas.read_csv('../data/transformed_data/all_enriched_date_data.csv',
+                                   parse_dates = ['recorded_date', 'full_date_description'])
+    else:
+        # denver data transformation
+        index = 1
+        print("Enriching denver data")
+        enriched_denv_data = enrich_date(denv_data, City.DENVER, event_data, index)
+        print()
+        # vancouver data transformation
+        index = len(denv_data) + 1
+        print("Enriching vancouver data")
+        enriched_van_data = enrich_date(van_data, City.VANCOUVER, event_data, index)
+        print()
+
+        print(enriched_van_data.tail())
+        print(enriched_denv_data.head())
+
+        # compile enriched data
+        all_enriched_date_data = enriched_denv_data.append(enriched_van_data, ignore_index=True)
+        all_enriched_date_data.to_csv('../data/transformed_data/all_enriched_date_data.csv', index=False)
+
+    # load to database
+    load_to_database(dbConn)
+
 
     return date_event_keys
     
