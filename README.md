@@ -36,16 +36,22 @@ cd dataStaging
 ```
 - An example is shown below of what the contents of your current working directory should look like
 ```
-[I] /home/rchang/dev/CSI-4142-Project/dataStaging | readme
-> ls -l
-total 56
--rw-r--r-- 1 rchang rchang 1926 Feb 20 23:32 connect.py
--rw-r--r-- 1 rchang rchang 2139 Feb 20 23:32 filter_data_by_range.py
--rw-r--r-- 1 rchang rchang 8802 Feb 20 23:32 location.py
--rw-r--r-- 1 rchang rchang 7172 Feb 20 23:32 pop_crime.py
--rw-r--r-- 1 rchang rchang 6181 Feb 20 23:32 stageDate.py
--rw-r--r-- 1 rchang rchang 1977 Feb 20 23:32 stageEvent.py
--rw-r--r-- 1 rchang rchang 4568 Feb 20 23:32 stage.py
+PS C:\Users\rchan086\Desktop\CSI-4142-Project\dataStaging> ls
+
+
+    Directory: C:\Users\rchan086\Desktop\CSI-4142-Project\dataStaging
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----       2020-02-21  11:36 AM           1982 connect.py
+-a----       2020-02-21  11:36 AM           2207 filter_data_by_range.py
+-a----       2020-02-21  11:36 AM           9047 location.py
+-a----       2020-02-21  11:36 AM           7423 pop_crime.py
+-a----       2020-02-21  11:36 AM           6370 stage.py
+-a----       2020-02-21  11:36 AM           6304 stageDate.py
+-a----       2020-02-21  11:36 AM           2015 stageEvent.py
+-a----       2020-02-21  11:36 AM           4802 stageFact.py
 ```
 - Run the Script with:
 ```
