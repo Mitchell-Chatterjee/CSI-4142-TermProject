@@ -6,6 +6,8 @@ import os
 # file imports
 import stageDate
 import stageEvent
+from location import createLocationCsv
+from pop_crime import gen_crime_csvs
 
 denvData= pandas.read_csv("../data/filteredDenverCrime.csv")
 vanData= pandas.read_csv("../data/filteredVancouverCrime.csv")
@@ -86,5 +88,30 @@ def loadLocation(city):
             createLocationCsv("vancouver")
             loadLocation("vancouver")
         print("DONE populating the Location table with the Vancouver data!")
+
+# This function will load the crime data into the db.
+def loadCrime():
+    if os.path.isfile('../data/final/denvCrimeDim.csv') \
+            and os.path.isfile('../data/final/vanCrimeDim.csv'):
+        dbConn.cursor.execute('SET search_path="CSI4142"')
+
+        print("Reading Transformed Denver crim Data...")
+        with open('../data/final/denvCrimeDim.csv', 'r') as f:
+            next(f)
+            dbConn.cursor.copy_from(f,'crime', sep=',', null="None")
+            dbConn.connection.commit()
+        print("DONE populating the crime table with the Denver data!")
+
+        print("Reading Transformed Vancouver crime Data...")
+        with open('../data/final/vanCrimeDim.csv', 'r') as f:
+            next(f)
+            dbConn.cursor.copy_from(f,'crime', sep=',', null="None")
+            dbConn.connection.commit()
+        print("DONE populating the crime table with the vancouver data!")
+    else:
+        print("Error fact csvs do not exist")
+
+#gen_crime_csvs(vanData, denvData)
+loadCrime()
 
 del dbConn

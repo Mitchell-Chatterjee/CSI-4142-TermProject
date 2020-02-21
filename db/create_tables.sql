@@ -79,14 +79,14 @@ CREATE TABLE EVENT
 CREATE TABLE CRIME
 (
 	Crime_key INTEGER PRIMARY KEY,
-	Crime_report_time TIME NOT NULL,
+	Crime_report_time TIME,
 	Crime_start_time TIME,
 	Crime_end_time TIME,
-	Crime_details VARCHAR(200),
-	Crime_type VARCHAR(20) NOT NULL,			-- The following two fields will be defined types
+	Crime_type VARCHAR(35) NOT NULL,			-- The following two fields will be defined types
 	Crime_category VARCHAR(20) NOT NULL,
 	Crime_severity_index INTEGER NOT NULL
 );
+GRANT ALL privileges ON CRIME to PUBLIC
 
 -- The main fact table
 CREATE TABLE CRIME_FACT
