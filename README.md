@@ -49,6 +49,6 @@ total 56
 ```
 - Run the Script with:
 ```
-python3 stage.py
+py -3 stage.py
 ```
 
