@@ -45,6 +45,23 @@ def locationNeighbourhood(row, city):
     else:
         return row['NEIGHBOURHOOD']
 
+# Returns the Neighbourhood type of the entry
+def locationNeighbourhoodType(row, city):
+    if city == "denver":
+        denverNeighbourhoodType  = ""
+        denverInfo = csv.reader(open('../data/denverInfo.csv', "rt",encoding="utf8"), delimiter=",")
+        for x in denverInfo:
+            if x[0] == row['NEIGHBORHOOD_ID']:
+                denverNeighbourhoodType = x[2]
+        return denverNeighbourhoodType
+    else:
+        vancouverNeighbourhoodType = ""
+        vancouverInfo = csv.reader(open('../data/vancouverInfo.csv', "rt",encoding="utf8"), delimiter=",")
+        for x in vancouverInfo:
+            if x[0] == row['NEIGHBOURHOOD']:
+                vancouverNeighbourhoodType=x[5]
+        return vancouverNeighbourhoodType
+
 # Returns the City of the entry
 def locationCity(row, city):
     if city == "denver":
@@ -178,6 +195,7 @@ def generateColumn(row,counter,city):
     columns.append(locationX(row, city))
     columns.append(locationY(row, city))
     columns.append(locationNeighbourhood(row, city))
+    columns.append(locationNeighbourhoodType(row, city))
     columns.append(locationCity(row, city))
     columns.append(locationCrimerate(row, city))
     columns.append(locationNumberOfCrimes(row, city))
@@ -205,7 +223,7 @@ def createLocationCsv(city):
 
         with open('../data/final/denverLocation.csv','w+', newline= '') as f:
             writer = csv.writer(f)
-            writer.writerow(['Location_key','Location_name','GeoX','GeoY','Neighbourhood','City','Crime_rate','NumberOfCrimes','AvgHouseholdIncome','AvgPropValue','NumOfPrecincts'])
+            writer.writerow(['Location_key','Location_name','GeoX','GeoY','Neighbourhood','locationNeighbourhoodType','City','Crime_rate','NumberOfCrimes','AvgHouseholdIncome','AvgPropValue','NumOfPrecincts'])
             for row in locationRowsDenver:
                 writer.writerow(row)
 
@@ -227,7 +245,7 @@ def createLocationCsv(city):
 
         with open('../data/final/vancouverLocation.csv','w+', newline= '') as f:
             writer = csv.writer(f)
-            writer.writerow(['Location_key','Location_name','GeoX','GeoY','Neighbourhood','City','Crime_rate','NumberOfCrimes','AvgHouseholdIncome','AvgPropValue','NumOfPrecincts'])
+            writer.writerow(['Location_key','Location_name','GeoX','GeoY','Neighbourhood','locationNeighbourhoodType','City','Crime_rate','NumberOfCrimes','AvgHouseholdIncome','AvgPropValue','NumOfPrecincts'])
             for row in locationRowsVancouver:
                 writer.writerow(row)
 
