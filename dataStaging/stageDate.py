@@ -103,13 +103,19 @@ def load_to_database(dbConn):
 def transform_date(dataframes, event_data, dbConn):
 
 
-    # truncate and add events to vancouver data
-    index = 1
-    denv_data = pandas.DataFrame(truncate_date(dataframes['Denver'], City.DENVER, event_data, index))
-
     # truncate and add events to denver data
+    index = 1
+    denv_data = pandas.DataFrame(
+        # need to filter the event data for denver only
+        truncate_date( dataframes['Denver'], City.DENVER, event_data.loc[event_data['City'] == 'Denver'], index)
+    )
+
+    # truncate and add events to vancouver data
     index = len(denv_data) + 1
-    van_data = pandas.DataFrame(truncate_date(dataframes['Vancouver'], City.VANCOUVER, event_data, index))
+    van_data = pandas.DataFrame(
+        # need to filter the event data for vancouver only
+        truncate_date(  dataframes['Vancouver'], City.VANCOUVER, event_data.loc[event_data['City'] == 'Vancouver'], index)
+    )
 
     # append the two dataframes for crime fact
     date_event_keys = denv_data.append(van_data, ignore_index=True)
