@@ -56,7 +56,7 @@ CREATE TABLE LOCATION
 	GeoX DOUBLE PRECISION,
 	GeoY DOUBLE PRECISION,
 	Neighbourhood VARCHAR(30),
-	Neighbourhood_Type VARCHAR(30),
+	Neighbourhood_type VARCHAR(30),
 	City VARCHAR(30),
 	Crime_rate DOUBLE PRECISION,
 	Number_Of_crimes integer,
