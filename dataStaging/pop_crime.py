@@ -1,9 +1,13 @@
+from multiprocessing import Pool
+from csv import writer, QUOTE_MINIMAL
 import datetime
-from math import isnan
 import pandas
-from multiprocessing import Process
 
 """ Handles the population of the Crime table
+
+Global Variables:
+    GLOB_DENV_DATA: Contains the denver data
+    GLOB_VAN_DATA: Contains the vancouver data
 
 Categories:
     traffic-accident
@@ -18,65 +22,59 @@ Categories:
     break-and-enter
 """
 
+GLOB_DENV_DATA = None
+GLOB_VAN_DATA = None
 
-def gen_crime_csvs(vanData, denvData):
-    """ Creates two csvs, one for denver and one for vancouver 
+
+def gen_crime_csvs(van_data, denv_data):
+    """ Creates two csvs, one for denver and one for vancouver
     This function should be run prior to loadCrime if the CSVs
     do not already exist
 
-    !!!! If changes to the length of data is made, the hardcoded count
-    value in gen_van_csv MUST be changed !!!!!
     """
-    denv_proc = Process(target=gen_denv_csv, args=(denvData,))
-    denv_proc.start()
+    global GLOB_DENV_DATA
+    global GLOB_VAN_DATA
 
-    van_proc = Process(target=gen_van_csv, args=(vanData,))
-    van_proc.start()
+    GLOB_DENV_DATA = denv_data
+    GLOB_VAN_DATA = van_data
 
-    denv_proc.join()
-    van_proc.join()
-
-
-def gen_denv_csv(denvData):
-    denvDf = pandas.DataFrame(columns=["Crime_key", "Crime_report_time", "Crime_start_time", "Crime_end_time", "Crime_type", "Crime_category", "Crime_severity_index"])
+    # ------------------------- Handle Denver Data ----------------------------
 
     print("Crime dimension: Processing denver data...")
-    count = 1
-    for i, row in denvData.iterrows():
-        new_row = handle_denv(row, count)
-        count = count + 1
-        if new_row is not None:
-            denvDf.loc[len(denvDf)] = new_row
+    with Pool() as pool:
+        chunk_gen = pool.imap(handle_denv, denv_data.index, 16)
+        # Store all chuncks from generator to list
+        denv_list = [chunk for chunk in chunk_gen]
     print("Crime dimension: Done denver")
 
-    print("Crime dimension: Writing denver to csv (denvCrimeDim.csv)...")
-    denvDf.to_csv("../data/final/denvCrimeDim.csv", encoding='utf-8', index=False)
-    print("Crime dimension:  Denver write complete")
+    # ------------------------- Handle Vancouver Data -------------------------
 
-
-def gen_van_csv(vanData):
-    vanDf = pandas.DataFrame(columns=["Crime_key", "Crime_report_time", "Crime_start_time", "Crime_end_time", "Crime_type", "Crime_category", "Crime_severity_index"])
-   
-    # HARDCODED TODO
-    count = 277866 + 1 
     print("Crime dimension: Processing vancouver data...")
-    for i, row in vanData.iterrows():
-        new_row = handle_van(row, count)
-        count = count + 1
-        if new_row is not None:
-            vanDf.loc[len(vanDf)] = new_row
+    with Pool() as pool:
+        chunk_gen = pool.imap(handle_van, van_data.index, 16)
+        # Store all chunks from generator to list
+        van_list = [chunk for chunk in chunk_gen]
     print("Crime dimension: Done vancouver")
 
-    print("Crime dimension: Writing vancouver to csv (vanCrimDim.csv)...")
-    vanDf.to_csv("../data/final/vanCrimeDim.csv", encoding='utf-8', index=False)
-    print("Crime dimension: Vancouver write complete")
- 
+    # ------------------------- Write to CSV -------------------------
 
-def denv_parseDate(inDate):
+    header = ["Crime_key", "Crime_report_time", "Crime_start_time", "Crime_end_time", "Crime_type", "Crime_category", "Crime_severity_index"]
+
+    print("Crime dimension: Writing data to csv (crimeDim.csv)...")
+    with open("../data/final/crimDim.csv", mode='w') as out_file:
+        csv_writer = writer(out_file, delimiter=',', quotechar='"', quoting=QUOTE_MINIMAL)
+        csv_writer.writerow(header)
+        full_list = denv_list + van_list
+        for index, row in enumerate(full_list):
+            row.insert(0, index + 1)
+            csv_writer.writerow(row)
+    print("Crime dimension: Write complete")
+
+def denv_parse_date(in_date):
     """ Process a date string from denver data and return corresponding datetime
     """
-    if isinstance(inDate, str):
-        date = datetime.datetime.strptime(inDate, "%m/%d/%Y %I:%M:%S %p")
+    if isinstance(in_date, str):
+        date = datetime.datetime.strptime(in_date, "%m/%d/%Y %I:%M:%S %p")
     else:
         date = None
     return date
@@ -177,29 +175,29 @@ def denv_map_offense(offCat, offType):
         print("No match!!", offCat, offType)
 
 
-def handle_denv(row, key):
+def handle_denv(index):
     """ Process one row of the denver data
     """
-    # Crime_key Crime_report_time", "Crime_start_time", "Crime_end_time", "Crime_type", "Crime_category", "Crime_severity_index"
+    # Crime_report_time", "Crime_start_time", "Crime_end_time", "Crime_type", "Crime_category", "Crime_severity_index"
+    row = GLOB_DENV_DATA.iloc[index]
     new_row = []
-    new_row.append(key)
 
     # Crime_start_time
-    first_occur = denv_parseDate(row["FIRST_OCCURRENCE_DATE"])
+    first_occur = denv_parse_date(row["FIRST_OCCURRENCE_DATE"])
     if first_occur is not None:
         new_row.append(first_occur.strftime("%H:%M"))
     else:
         new_row.append("None")
 
     # Crime_report_time
-    report_date = denv_parseDate(row["REPORTED_DATE"])
+    report_date = denv_parse_date(row["REPORTED_DATE"])
     if report_date is not None:
         new_row.append(report_date.strftime("%H:%M"))
     else:
         new_row.append("None")
 
     # Crime_end_time
-    end_occur = denv_parseDate(row["LAST_OCCURRENCE_DATE"])
+    end_occur = denv_parse_date(row["LAST_OCCURRENCE_DATE"])
     if end_occur is not None:
         new_row.append(end_occur.strftime("%H:%M"))
     else:
@@ -219,12 +217,12 @@ def handle_denv(row, key):
     return new_row
 
 
-def handle_van(row, key):
+def handle_van(index):
     """ Process one row of the vancouver data
     """
-    # Crime_key Crime_report_time", "Crime_start_time", "Crime_end_time", "Crime_type", "Crime_category", "Crime_severity_index"
+    # Crime_report_time", "Crime_start_time", "Crime_end_time", "Crime_type", "Crime_category", "Crime_severity_index"
+    row = GLOB_VAN_DATA.iloc[index]
     new_row = []
-    new_row.append(key)
 
     # Crime_report_time
     new_row.append("None")

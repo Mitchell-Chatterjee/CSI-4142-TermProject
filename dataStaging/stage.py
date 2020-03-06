@@ -14,16 +14,6 @@ from pop_crime import gen_crime_csvs
 denvData= pandas.read_csv("../data/filteredDenverCrime.csv")
 vanData= pandas.read_csv("../data/filteredVancouverCrime.csv")
 
-def exampleCall(row):
-    print(row)
-    print("------------------")
-    print(row["GEO_X"])
-
-# for index, row in denvData.iterrows():
-#     exampleCall(row)
-
-# for index, row in vanData.iterrows():
-#     exampleCall(row)
 
 def historicLoad(dbConn):
     loadLocation("denver")
@@ -53,11 +43,10 @@ def historicLoad(dbConn):
 
 
     # crime dimension
-    if os.path.isfile('../data/final/denvCrimeDim.csv') \
-            and os.path.isfile('../data/final/vanCrimeDim.csv'):
+    if os.path.isfile('../data/final/crimeDim.csv'):
         print("Crime dimension csv files found")
     else:
-        print("No Crime csv files found. Rebuilding crime files")
+        print("Crime csv file not found. Rebuilding crime dimension...")
         gen_crime_csvs(vanData, denvData)
 
     loadCrime()
