@@ -72,8 +72,8 @@ def locationCity(row, city):
 # Returns the crimerate of the entry
 def locationCrimerate(row, city):
     if city == "denver":
-        denverNumberOfCrime = 1
-        denverPopulation = 1
+        denverNumberOfCrime = 0
+        denverPopulation = 0
 
         denverCrime = csv.reader(open('../data/denverCrimeRate2018.csv', "rt",encoding="utf8"), delimiter=",")
         for x in denverCrime:
@@ -87,8 +87,8 @@ def locationCrimerate(row, city):
 
         return (int(denverNumberOfCrime)/int(denverPopulation))*100000
     else:
-        vancouverNumberOfCrime = 1
-        vancouverPopulation = 1
+        vancouverNumberOfCrime = 0
+        vancouverPopulation = 0
 
         vancouverCrime = csv.reader(open('../data/vancouverCrimeRate2018.csv', "rt",encoding="utf8"), delimiter=",")
         for x in vancouverCrime:
@@ -100,13 +100,15 @@ def locationCrimerate(row, city):
         for x in vancouverInfo:
             if x[0] == row['NEIGHBOURHOOD']:
                 vancouverPopulation = x[3]
-
-        return (int(vancouverNumberOfCrime)/int(vancouverPopulation))*100000
+        if(vancouverNumberOfCrime == 0 or vancouverPopulation == 0):
+            return 0
+        else:
+            return (int(vancouverNumberOfCrime)/int(vancouverPopulation))*100000
 
 # Returns the number of crimes of the entry
 def locationNumberOfCrimes(row, city):
     if city == "denver":
-        denverNumberOfCrime = 1
+        denverNumberOfCrime = 0
 
         denverCrime = csv.reader(open('../data/denverCrimeRate2018.csv', "rt",encoding="utf8"), delimiter=",")
         for x in denverCrime:
@@ -115,7 +117,7 @@ def locationNumberOfCrimes(row, city):
 
         return denverNumberOfCrime
     else:
-        vancouverNumberOfCrime = 1
+        vancouverNumberOfCrime = 0
 
         vancouverCrime = csv.reader(open('../data/vancouverCrimeRate2018.csv', "rt",encoding="utf8"), delimiter=",")
         for x in vancouverCrime:
@@ -127,7 +129,7 @@ def locationNumberOfCrimes(row, city):
 # Returns the Avg house hold income of the entry
 def locationAvgHouseholdIncome(row, city):
     if city == "denver":
-        denverHouseholdIncome = 1
+        denverHouseholdIncome = 0
 
         denverInfo = csv.reader(open('../data/denverInfo.csv', "rt",encoding="utf8"), delimiter=",")
         for x in denverInfo:
@@ -136,7 +138,7 @@ def locationAvgHouseholdIncome(row, city):
 
         return denverHouseholdIncome
     else:
-        vancouverHouseholdIncome = 1
+        vancouverHouseholdIncome = 0
 
         vancouverInfo = csv.reader(open('../data/vancouverInfo.csv', "rt",encoding="utf8"), delimiter=",")
         for x in vancouverInfo:
@@ -148,7 +150,7 @@ def locationAvgHouseholdIncome(row, city):
 # Returns the Avg Property value of the entry
 def locationAvgPropValue(row, city):
     if city == "denver":
-        denverAvgPropValue = 1
+        denverAvgPropValue = 0
 
         denverInfo = csv.reader(open('../data/denverInfo.csv', "rt",encoding="utf8"), delimiter=",")
         for x in denverInfo:
@@ -157,7 +159,7 @@ def locationAvgPropValue(row, city):
 
         return denverAvgPropValue
     else:
-        vancouverAvgPropValue = 1
+        vancouverAvgPropValue = 0
 
         vancouverInfo = csv.reader(open('../data/vancouverInfo.csv', "rt",encoding="utf8"), delimiter=",")
         for x in vancouverInfo:
