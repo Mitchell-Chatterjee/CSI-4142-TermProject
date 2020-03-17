@@ -43,7 +43,7 @@ def historicLoad(dbConn):
 
 
     # crime dimension
-    if os.path.isfile('../data/final/crimeDim.csv'):
+    if os.path.isfile('../data/final/crimDim.csv'):
         print("Crime dimension csv files found")
     else:
         print("Crime csv file not found. Rebuilding crime dimension...")
@@ -100,24 +100,19 @@ def loadLocation(city):
 
 # This function will load the crime data into the db.
 def loadCrime():
-    if os.path.isfile('../data/final/denvCrimeDim.csv') \
-            and os.path.isfile('../data/final/vanCrimeDim.csv'):
+    if os.path.isfile('../data/final/crimDim.csv'):
         try:
-            print("Reading Transformed Denver crim Data...")
-            with open('../data/final/denvCrimeDim.csv', 'r') as f:
+            print("Reading updated crime dimension data")
+            with open('../data/final/crimDim.csv', 'r') as f:
                 next(f)
                 dbConn.writeFiletoDB(f, 'crime')
 
-            print("Reading Transformed Vancouver crime Data...")
-            with open('../data/final/vanCrimeDim.csv', 'r') as f:
-                next(f)
-                dbConn.writeFiletoDB(f, 'crime')
         except Exception as err:
             print("---------------")
             print("Exception: ", err)
             print("---------------")
     else:
-        print("Error fact csvs do not exist")
+        print("Error crime csvs do not exist")
 
 # This function will load the fact data into the db.
 def loadFact():
