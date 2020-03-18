@@ -1,10 +1,10 @@
-SET search_path = "CSI4142";
+SET search_path = "public";
 
--- DROP TABLE "CSI4142".crime CASCADE;
--- DROP TABLE "CSI4142".date CASCADE;
--- DROP TABLE "CSI4142".event CASCADE;
--- DROP TABLE "CSI4142".location CASCADE;
--- DROP TABLE "CSI4142".crime_fact;
+-- DROP TABLE "public".crime CASCADE;
+-- DROP TABLE "public".date CASCADE;
+-- DROP TABLE "public".event CASCADE;
+-- DROP TABLE "public".location CASCADE;
+-- DROP TABLE "public".crime_fact;
 
 -- The date dimension
 CREATE TABLE DATE
@@ -48,6 +48,8 @@ GRANT ALL ON TABLE date TO mchat022;
 
 GRANT ALL ON TABLE date TO rchan086;
 
+GRANT ALL ON TABLE date TO dalga082;
+
 -- The location dimension
 CREATE TABLE LOCATION 
 (
@@ -64,6 +66,12 @@ CREATE TABLE LOCATION
 	Avg_prop_value integer,
 	Num_of_precincts integer
 );
+
+GRANT ALL ON TABLE location TO mchat022;
+
+GRANT ALL ON TABLE location TO rchan086;
+
+GRANT ALL ON TABLE location TO dalga082;
 
 -- The event dimension
 CREATE TABLE EVENT
@@ -92,6 +100,8 @@ GRANT ALL ON TABLE event TO mchat022;
 
 GRANT ALL ON TABLE event TO rchan086;
 
+GRANT ALL ON TABLE event TO dalga082;
+
 -- Must insert an empty event into the event table
 INSERT INTO EVENT
 VALUES
@@ -108,7 +118,12 @@ CREATE TABLE CRIME
 	Crime_category VARCHAR(20) NOT NULL,
 	Crime_severity_index INTEGER NOT NULL
 );
-GRANT ALL privileges ON CRIME to PUBLIC;
+
+GRANT ALL ON TABLE crime TO mchat022;
+
+GRANT ALL ON TABLE crime TO rchan086;
+
+GRANT ALL ON TABLE crime TO dalga082;
 
 -- The main fact table
 CREATE TABLE CRIME_FACT
@@ -131,4 +146,9 @@ CREATE TABLE CRIME_FACT
 		REFERENCES EVENT(Event_key),
 	PRIMARY KEY (Date_key, Location_key, Crime_key, Event_key)
 );
-GRANT ALL privileges ON CRIME_FACT to PUBLIC;
+
+GRANT ALL ON TABLE crime_fact TO mchat022;
+
+GRANT ALL ON TABLE crime_fact TO rchan086;
+
+GRANT ALL ON TABLE crime_fact TO dalga082;
